@@ -1,6 +1,5 @@
-
 # Alternative Infill Strategies for Expensive Multi-Objective Optimisation
-A. Rahat, R. Everson, and J. Fieldsend.<br />
+A. Rahat, R. Everson, and J. Fieldsend.   
 Department of Computer Science, University of Exeter, UK.
 
 >This repository contains Python code for the infill streategies presented in __Alternative Infill Strategies for Expensive Multi-Objective Optimisation__ by A. Rahat, R. Everson and J. Fieldsend, to appear in GECCO 2017 proceedings. Please refer to the _LICENSE_ before using the code. 
@@ -62,8 +61,8 @@ The multi-objective evolutionary optimiser method (_IscaOpt.Optimiser.EMO_) requ
 * init_file (str): intial design file. It should be a __.npz__ file with 'arr_0' set to decision variables matrix $X \in \mathbb{R}^{M \times n}$ and 'arr_1' for corresponding function response vector $\mathbf{f} \in \mathbb{R}^{M \times D}$ (please refer to the paper for details on notations).
 * visualise (bool): it allows basic visualisations. Only available for the following cases: __n_obj=2__; __n_obj=1 and n_dim=2__; __n_obj=1 and n_dim=1__.
 
-> __Notes__<br />
-> * This package can be used for single objective Bayesian optimisation. To do so, specify the method by setting **method_name** to **'EGO'**, and of course **n_obj** to **1** with an appropriate function. <br />
+> __Notes__       
+> * This package can be used for single objective Bayesian optimisation. To do so, specify the method by setting **method_name** to **'EGO'**, and of course **n_obj** to **1** with an appropriate function.       
 > * For one-dimensional search space and a single objective problem, we just use a grid-search instead of CMA-ES. 
 
 
