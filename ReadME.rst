@@ -1,4 +1,3 @@
-
 Alternative Infill Strategies for Expensive Multi-Objective Optimisation
 ========================================================================
 
@@ -21,7 +20,7 @@ Alternative Infill Strategies for Expensive Multi-Objective Optimisation
     https://ore.exeter.ac.uk/repository/handle/10871/27157
 
     IPython notebook:
-    http://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/6bafce8df19f40f1f0c92584b98efa063a59d594/ReadME.ipynb
+    http://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/6fb07690329d76e114af61c609bc6e720340570b/ReadME.ipynb
 
 Pre-requisits.
 --------------
