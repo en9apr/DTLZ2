@@ -138,7 +138,7 @@ An example.
 **DTLZ2** problem, starting with :math:`65` initial LHS samples and a
 budget of :math:`100`.
 
-.. code:: ipython3
+.. code:: python3
 
     from IPython.display import clear_output
     # example set up
