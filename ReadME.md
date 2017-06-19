@@ -6,7 +6,7 @@ Department of Computer Science, University of Exeter, UK.
 
 >Preprint repository: https://ore.exeter.ac.uk/repository/handle/10871/27157
 
->Click here to see the ipython notebook: http://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/6bafce8df19f40f1f0c92584b98efa063a59d594/ReadME.ipynb
+>IPython notebook: http://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/6bafce8df19f40f1f0c92584b98efa063a59d594/ReadME.ipynb
 
 
 ## Pre-requisits.
