@@ -1,5 +1,5 @@
 # Alternative Infill Strategies for Expensive Multi-Objective Optimisation
-A. Rahat, R. Everson, and J. Fieldsend.   
+[A. Rahat](http://emps.exeter.ac.uk/computer-science/staff/aamr201), [R. Everson](http://emps.exeter.ac.uk/computer-science/staff/reverson), and [J. Fieldsend](http://emps.exeter.ac.uk/computer-science/staff/jefields).   
 Department of Computer Science, University of Exeter, UK.
 
 >This repository contains Python code for the infill streategies presented in __Alternative Infill Strategies for Expensive Multi-Objective Optimisation__ by A. Rahat, R. Everson and J. Fieldsend, to appear in GECCO 2017 proceedings. Please refer to the _LICENSE_ before using the code. 
