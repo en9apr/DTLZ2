@@ -169,7 +169,7 @@ budget of :math:`100`.
 
 
 
-.. image:: figures/output_7_0.png
+.. image:: figures/dtlz2.png
 
 
 In the Figure above, the blue crosses show the initial samples, and the
