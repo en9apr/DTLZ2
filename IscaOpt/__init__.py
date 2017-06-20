@@ -1,6 +1,6 @@
 """
 ================================================================================
-IscaOpt: A Single and Multi-objective Bayesian Optimiser
+IscaOpt: A Single and Multi-objective Bayesian Optimiser for Continuous Problems
 ================================================================================
 :Author:
    Alma Rahat   <A.A.M.Rahat@exeter.ac.uk>

@@ -3,7 +3,7 @@
 
 """
 ================================================================================
-Mono-Surrogate Approaches to Multi-Objective Bayesian Optimisation
+Mono-Surrogate Approaches to Single- and Multi-Objective Bayesian Optimisation
 ================================================================================
 :Author:
    Alma Rahat   <A.A.M.Rahat@exeter.ac.uk>
@@ -55,6 +55,7 @@ class MonoSurrogate(BayesianOptBase):
                             objective function. 
         X (np.array): initial set of decision vectors.
         Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
         ref_vector (np.array): reference vector in the objective space.
         """
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
@@ -64,6 +65,21 @@ class MonoSurrogate(BayesianOptBase):
         
     def get_toolbox(self, xtr, skwargs, cfunc=None, \
                         cargs=(), ckwargs={}, verbose=True):
+        """
+        Generate a DEAP toolbox for the infill criterion optimiser.
+        
+        Parameters. 
+        -----------
+        xtr (np.array): traing decision vectors.
+        skwargs (dict): options for infill criterion calculation; varies with 
+                        technique.
+        cfunc (function): cheap constraint function.
+        cargs (tuple): argumetns for constraint function.
+        ckwargs (dict): keyword arguments for constraint function.
+        verbose (bool): whether to print more comments. 
+        
+        Returns a DEAP toolbox.     
+        """
         ytr = self.scalarise(xtr, kwargs=skwargs)
         self.current_hv = self.current_hpv()
         surr = Surrogate(xtr, ytr, self.kernel.copy(), verbose=verbose)
@@ -81,6 +97,26 @@ class HypI(MonoSurrogate):
                     kern=None, ref_vector=None):
         '''
         Simple constructor invoking parent.
+        
+        Parameters.
+        -----------
+        func (method): the method to call for actual evaluations
+        n_dim (int): number of decision space dimensions
+        n_obj (int): number of obejctives
+        lower_bounds (np.array): lower bounds per dimension in the decision space
+        upper_boudns (np.array): upper bounds per dimension in the decision space
+        obj_sense (np.array or list): whether to maximise or minimise each 
+                objective (ignore this as it was not tested). 
+                keys. 
+                    -1: minimisation
+                     1: maximisation
+        args (tuple): the required arguments for the objective function
+        kwargs (dictionary): dictionary of keyword argumets to pass to the 
+                            objective function. 
+        X (np.array): initial set of decision vectors.
+        Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
+        ref_vector (np.array): reference vector in the objective space.
         '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
@@ -151,6 +187,26 @@ class MSD(MonoSurrogate):
                     kern=None, ref_vector=None):
         '''
         Simple constructor invoking parent. 
+        
+        Parameters.
+        -----------
+        func (method): the method to call for actual evaluations
+        n_dim (int): number of decision space dimensions
+        n_obj (int): number of obejctives
+        lower_bounds (np.array): lower bounds per dimension in the decision space
+        upper_boudns (np.array): upper bounds per dimension in the decision space
+        obj_sense (np.array or list): whether to maximise or minimise each 
+                objective (ignore this as it was not tested). 
+                keys. 
+                    -1: minimisation
+                     1: maximisation
+        args (tuple): the required arguments for the objective function
+        kwargs (dictionary): dictionary of keyword argumets to pass to the 
+                            objective function. 
+        X (np.array): initial set of decision vectors.
+        Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
+        ref_vector (np.array): reference vector in the objective space.
         '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
@@ -193,6 +249,26 @@ class DomRank(MonoSurrogate):
                     kern=None, ref_vector=None):
         '''
         Simple constructor for invoking parent class.
+        
+        Parameters.
+        -----------
+        func (method): the method to call for actual evaluations
+        n_dim (int): number of decision space dimensions
+        n_obj (int): number of obejctives
+        lower_bounds (np.array): lower bounds per dimension in the decision space
+        upper_boudns (np.array): upper bounds per dimension in the decision space
+        obj_sense (np.array or list): whether to maximise or minimise each 
+                objective (ignore this as it was not tested). 
+                keys. 
+                    -1: minimisation
+                     1: maximisation
+        args (tuple): the required arguments for the objective function
+        kwargs (dictionary): dictionary of keyword argumets to pass to the 
+                            objective function. 
+        X (np.array): initial set of decision vectors.
+        Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
+        ref_vector (np.array): reference vector in the objective space.
         '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
@@ -238,6 +314,26 @@ class ParEGO(MonoSurrogate):
                     kern=None, ref_vector=None):
         '''
         Simple constructor for invoking parent.
+        
+        Parameters.
+        -----------
+        func (method): the method to call for actual evaluations
+        n_dim (int): number of decision space dimensions
+        n_obj (int): number of obejctives
+        lower_bounds (np.array): lower bounds per dimension in the decision space
+        upper_boudns (np.array): upper bounds per dimension in the decision space
+        obj_sense (np.array or list): whether to maximise or minimise each 
+                objective (ignore this as it was not tested). 
+                keys. 
+                    -1: minimisation
+                     1: maximisation
+        args (tuple): the required arguments for the objective function
+        kwargs (dictionary): dictionary of keyword argumets to pass to the 
+                            objective function. 
+        X (np.array): initial set of decision vectors.
+        Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
+        ref_vector (np.array): reference vector in the objective space.
         '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                         obj_sense, args, kwargs, X, Y, kern=kern,\
@@ -316,6 +412,26 @@ class EGO(MonoSurrogate):
                     kern=None, ref_vector=None):
         '''
         Simple constructor for invoking parent class.
+        
+        Parameters.
+        -----------
+        func (method): the method to call for actual evaluations
+        n_dim (int): number of decision space dimensions
+        n_obj (int): number of obejctives
+        lower_bounds (np.array): lower bounds per dimension in the decision space
+        upper_boudns (np.array): upper bounds per dimension in the decision space
+        obj_sense (np.array or list): whether to maximise or minimise each 
+                objective (ignore this as it was not tested). 
+                keys. 
+                    -1: minimisation
+                     1: maximisation
+        args (tuple): the required arguments for the objective function
+        kwargs (dictionary): dictionary of keyword argumets to pass to the 
+                            objective function. 
+        X (np.array): initial set of decision vectors.
+        Y (np.array): initial set of objective values (associated with X).
+        kern (GPy kernel): kernel to be used with Gaussian process.
+        ref_vector (np.array): reference vector in the objective space.
         '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                         obj_sense, args, kwargs, X, Y, kern=kern,\
