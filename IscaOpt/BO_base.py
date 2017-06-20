@@ -126,7 +126,8 @@ class BayesianOptBase(object):
             
     def get_dom_matrix(self, y, r=None):
         """
-        Build a dominance comparison matrix. Cell keys for the resulting matrix.
+        Build a dominance comparison matrix between all observed solutions. Cell 
+        keys for the resulting matrix.
         -1: The same solution, hence identical
          0: Row dominates column.
          1: Column dominates row. 

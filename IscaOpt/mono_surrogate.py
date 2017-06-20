@@ -30,7 +30,7 @@ except:
 
 class MonoSurrogate(BayesianOptBase):
     """
-    Mono-surrogate base class.
+    Mono-surrogate base class; inherits from Bayesian optimiser base class.
     """
 
     def __init__(self, func, n_dim, n_obj, lower_bounds, upper_bounds, \
@@ -50,7 +50,7 @@ class MonoSurrogate(BayesianOptBase):
                 keys. 
                     -1: minimisation
                      1: maximisation
-        args (tuple): tuple of arguments the objective function requires
+        args (tuple): the required arguments for the objective function
         kwargs (dictionary): dictionary of keyword argumets to pass to the 
                             objective function. 
         X (np.array): initial set of decision vectors.
@@ -71,27 +71,36 @@ class MonoSurrogate(BayesianOptBase):
                         ckwargs=ckwargs, lb=self.lower_bounds, ub=self.upper_bounds)
         
 class HypI(MonoSurrogate):
+    '''
+    Mono-surrogate Hypervolume Improvement (HypI) infill criterion.
+    '''
 
     def __init__ (self, func, \
                     n_dim, n_obj, lower_bounds, upper_bounds, \
                     obj_sense=[-1, -1], args = (), kwargs={}, X=None, Y=None,\
                     kern=None, ref_vector=None):
+        '''
+        Simple constructor invoking parent.
+        '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
                                 ref_vector=ref_vector)
         
     def scalarise(self, x, kwargs={}):
         '''
-        ref_vector=None, approximate_ref=False
-        Scalarise a multi-objective problem using hyper-volume contribution.
+        Hypervolume improvement computation for a given set of solutions.
+        See paper for full description. 
         
-        S_i is the set of solutions in shell i. The common area is the hypervolume
-        of the next shell. 
-        F(x_k, S_i, S_(i+1)) = H({x_k} U S_(i+1)) 
-        
-        parameters. 
+        Parameters.
         -----------
-        x (numpy array): 
+        x (np.array): decision vectors.
+        kwargs (dict): a dictionary of options. They are;
+            'ref_vector' (np.array): reference vector
+            'approximate_ref' (bool): whether to approximate reference vector 
+                                    using minimum and maximum within the function 
+                                    responses.
+                                    
+        Returns an array of hypervolume improvements.
         '''
         start = time.time()
         ref_vector = kwargs.get('ref_vector', None)
@@ -104,12 +113,12 @@ class HypI(MonoSurrogate):
             ref_vector = np.max(y, axis=0) + 0.1 * (np.max(y, axis=0) - np.min(y, axis=0))
             print("New Reference vector: ", ref_vector)
         y, comp_mat = self.get_dom_matrix(y, ref_vector)
-        # shell hpv calculations
         shells = []
         h_shells = []
         loc_comp_mat = comp_mat.copy()
         hpv = FH(ref_vector)
-        del_inds = []        
+        del_inds = []   
+        # shell ranking     
         while True:
             fr_inds = self.get_front(y, loc_comp_mat, del_inds)
             if fr_inds.shape[0] == 0:
@@ -119,6 +128,7 @@ class HypI(MonoSurrogate):
             del_inds = np.concatenate([fr_inds, del_inds], axis=0)
             loc_comp_mat[:,fr_inds] = loc_comp_mat[fr_inds, :] = -1
         n_shells = len(shells)
+        # hypI conputation
         for i in range(n_shells-1):
             for j in shells[i]:
                 comp_row = comp_mat[j]
@@ -131,18 +141,31 @@ class HypI(MonoSurrogate):
 
         
 class MSD(MonoSurrogate):
+    '''
+    Mono-surrogate Minimum Signed Distance (MSD) infill criterion.
+    '''
     
     def __init__ (self, func, \
                     n_dim, n_obj, lower_bounds, upper_bounds, \
                     obj_sense=[-1, -1], args = (), kwargs={}, X=None, Y=None,\
                     kern=None, ref_vector=None):
+        '''
+        Simple constructor invoking parent. 
+        '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
                                 ref_vector=ref_vector)
     
     def scalarise(self, x, kwargs={}):
         """
-        Min-max distance from the Pareto front.
+        Minimum signed distance from the Pareto front. See paper for full details.
+        
+        Parameters.
+        -----------
+        x (np.array): decision vectors.
+        kwargs (dict): not used in this case.
+        
+        Returns an array of distances. 
         """
         start = time.time()
         y = self.m_obj_eval(x)
@@ -160,25 +183,36 @@ class MSD(MonoSurrogate):
         
         
 class DomRank(MonoSurrogate):
+    '''
+    Mono-surrogate dominance ranking infill criterion.    
+    '''
     
     def __init__ (self, func, \
                     n_dim, n_obj, lower_bounds, upper_bounds, \
                     obj_sense=[-1, -1], args = (), kwargs={}, X=None, Y=None,\
                     kern=None, ref_vector=None):
+        '''
+        Simple constructor for invoking parent class.
+        '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                                 obj_sense, args, kwargs, X, Y, kern=kern,\
                                 ref_vector=ref_vector)
 
     def scalarise(self, x, kwargs={}):
         """
-        H[i] = # that dominates i / (n - 1), where
-        n = # of solutions
+        Dominance ranking infill criterion. See paper for full details.
+        
+        Parameters.
+        -----------
+        x (np.array): decision vectors.
+        kwargs (dict): not used in this case.
+        
+        Returns an array of distances. 
         """
         start = time.time()
         y = self.m_obj_eval(x)
         self.X = x
         n_data = x.shape[0]
-        #print('Total data points:', n_data)
         h = np.zeros(n_data)
         y, comp_mat = self.get_dom_matrix(y)
         front_inds = self.get_front(y, comp_mat)
@@ -194,11 +228,17 @@ class DomRank(MonoSurrogate):
         
 
 class ParEGO(MonoSurrogate):
+    '''
+    Mono-surrogate ParEGO.
+    '''
    
     def __init__ (self, func, \
                     n_dim, n_obj, lower_bounds, upper_bounds, \
                     obj_sense=[-1, -1], args = (), kwargs={}, X=None, Y=None,\
                     kern=None, ref_vector=None):
+        '''
+        Simple constructor for invoking parent.
+        '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                         obj_sense, args, kwargs, X, Y, kern=kern,\
                         ref_vector=ref_vector)
@@ -206,9 +246,14 @@ class ParEGO(MonoSurrogate):
                         
     def normalise(self, y):
         """
-        normalise cost functions.
-        according to parego the known or estimated limits are used. 
-        here we use limits estimated from data.
+        Normalise cost functions. Here we use estimated limits from data in 
+        normalisation as suggested by Knowles (2006).
+        
+        Parameters. 
+        -----------
+        y (np.array): matrix of function values.
+        
+        Returns normalised function values.
         """
         min_y = np.min(y, axis=0)
         max_y = np.max(y, axis=0)
@@ -216,7 +261,14 @@ class ParEGO(MonoSurrogate):
         
     def get_lambda(self, s, n_obj):
         """
-        s is the total number of vectors
+        Select a lambda vector. See Knowles(2006) for full details. 
+        
+        Parameters. 
+        -----------
+        s (int): total number of vectors. 
+        n_obj (int): number of objectvies.
+        
+        Returns a selected lambda vector.
         """
         try:
             self.l_set
@@ -230,7 +282,18 @@ class ParEGO(MonoSurrogate):
         
     def scalarise(self, x, kwargs={}):
         """
-        transform cost functions with augmented chebyshev: parego style.
+        Transform cost functions with augmented chebyshev -- ParEGO infill 
+        criterion. 
+        See Knowles(2006) for full details.
+        
+        Parameters.
+        -----------
+        x (np.array): decision vectors.
+        kwargs (dict): dictionary of options. They are.
+                    's' (int): number of lambda vectors. 
+                    'rho' (float): rho from ParEGO
+                    
+        Returns an array of transformed cost.
         """
         s = kwargs.get('s', 5)
         rho = kwargs.get('rho', 0.05)
@@ -242,17 +305,37 @@ class ParEGO(MonoSurrogate):
         return np.reshape(-new_y, (-1, 1))
         
 class EGO(MonoSurrogate):
+    '''
+    Mono-surrogate single obejctive optimiser that uses expected improvement as
+    infill criterion.
+    '''
    
     def __init__ (self, func, \
                     n_dim, n_obj, lower_bounds, upper_bounds, \
                     obj_sense=-1, args = (), kwargs={}, X=None, Y=None,\
                     kern=None, ref_vector=None):
+        '''
+        Simple constructor for invoking parent class.
+        '''
         super().__init__(func, n_dim, n_obj, lower_bounds, upper_bounds, \
                         obj_sense, args, kwargs, X, Y, kern=kern,\
                         ref_vector=ref_vector)
                                 
     def get_toolbox(self, xtr, skwargs, cfunc=None, \
                         cargs=(), ckwargs={}, verbose=True):
+        '''
+        Modify parent's toolbox method for single objective optimisation. 
+        
+        Parameters. 
+        ----------
+        xtr (np.array): training decision vectors.
+        skwargs (dict): keyword arguments for infill criterion; not used here.
+        cfunc (function): cheap constraint function.
+        cargs (tuple): arguments of cheap constraint function. 
+        verbose (bool): whether to print verbose comments. 
+        
+        Returns a DEAP toolbox.        
+        '''
         ytr = self.scalarise(xtr, kwargs=skwargs)
         self.current_hv = self.current_hpv()
         surr = Surrogate(xtr, ytr, self.kernel.copy(), verbose=verbose)
@@ -263,7 +346,8 @@ class EGO(MonoSurrogate):
         
     def scalarise(self, x, kwargs={}):
         """
-        single objective, hence send back whatever it is
+        Single objective dummy scalarisation: just sends back the original cost 
+        function values. This is here to make the framework coherent. 
         """
         y = self.m_obj_eval(x)
         self.X = x

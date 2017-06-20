@@ -1,3 +1,17 @@
+"""
+================================================================================
+IscaOpt: A Single and Multi-objective Bayesian Optimiser
+================================================================================
+:Author:
+   Alma Rahat   <A.A.M.Rahat@exeter.ac.uk>
+:Date:
+   20 June 2017
+:Copyright:
+   Copyright (c)  Alma Rahat, University of Exeter, 2017
+:File:
+   __init__.py
+"""
+
 from .optimiser import Optimiser
 
 __version__ = '1.0.0'
