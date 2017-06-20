@@ -3,7 +3,7 @@
 
 """
 ================================================================================
-Mono-Surrogate Approaches to Multi-Objective Bayesian Optimisation
+Optimiser suite
 ================================================================================
 :Author:
    Alma Rahat   <A.A.M.Rahat@exeter.ac.uk>
@@ -16,7 +16,6 @@ Mono-Surrogate Approaches to Multi-Objective Bayesian Optimisation
 """
 
 # imports
-
 import numpy as np
 import GPy as GP
 import cma as CMA
@@ -35,6 +34,11 @@ def mod_evaluate(x, toolbox):
     Modify toolbox function to work with CMA_ES (Hansen). In CMA-ES the default 
     is to minimise a given function. Here we negate the given function to turn 
     it into a maximisation problem.
+    
+    Parameters.
+    -----------
+    x (np.array): decision vector
+    toolbox (DEAP toolbox): toolbox with the infill cost function.
     """
     try:
         return -toolbox.evaluate(x)[0][0]
@@ -42,12 +46,30 @@ def mod_evaluate(x, toolbox):
         return -toolbox.evaluate(x)[0]
 
 class Optimiser(object):
-    """A suite of optimisers where the inidividual optimisers may be called
-    without creating an instance of the optimiser.     
+    """
+    A suite of optimisers where the inidividual optimisers may be called
+    without creating an instance of the optimiser.
     """
         
     @staticmethod
     def CMA_ES(toolbox, centroid=[1], std_dev=1, lb=[0], ub=[1], cma_options={}):
+        """
+        A wrapper for CMA-ES (Hansen) with DEAP toolbox.
+        
+        Parameters.
+        -----------
+        toolbox (DEAP toolbox): an appropriate toolbox that consists of 
+                                the objective function for CMA-ES.
+        centroid (list or str): centroid vector or a string that can produce a 
+                                centroid vector. 
+        std_dev (float): standard deviation from the centroid.
+        lb (list or np.array): lower bounds in the decision space. 
+        ub (list or np.array): upper bounds in the decision space.
+        cma_options (dict): cma_options from Hansen's CMA-ES. Consult the relevant 
+                            documentation.
+                            
+        Returns the best approximation of the optimal decision vector.
+        """
         func = mod_evaluate
         fargs = (toolbox,)
         res = CMA.fmin(func, centroid, std_dev, \
@@ -56,6 +78,23 @@ class Optimiser(object):
         
     @staticmethod
     def grid_search_1D(toolbox, lb, ub, n=10000, obj_sense=1):
+        '''
+        Grid search in one dimension. Evluate the objective function at equally
+        spaced locations between the lower and upper boundary of the decision
+        space.
+        
+        Parameters.
+        -----------
+        toolbox (DEAP toolbox): toolbox that contains the objective function.
+        lb (np.array): lower bounds on the decision space.
+        ub (np.array): upper bounds on the decision space.
+        n (int): number of samples to evaluate.
+        obj_sense (int): optimisation sense. Keys. 
+                            -1: minimisation.
+                             1: maximisation.
+                             
+        Returns the best decision vector from the observed solutions. 
+        '''
         x = np.linspace(lb, ub, n)[:,None]
         y = np.array([toolbox.evaluate(i) for i in  x])
         opt_ind = np.argmax(obj_sense*y)
@@ -65,15 +104,21 @@ class Optimiser(object):
     def EMO(func, fargs=(), fkwargs={}, cfunc=None, cargs=(), ckwargs={},\
             settings={}):
         '''
-        Optimising a multiobjective problem using surrogate and hyper-volume 
-        scalarisation.
+        Optimising a single- or multi-objective problem using 
+        Gaussian process surrogate(s).
         
-        parameters.
+        Parameters. 
         -----------
-        problem_class (object string): the expensive problem class
-        budget (int): the maximum number of evaluation of the expensive function. 
-        settings (dictionary of settings):
-            n_samples: number of initial samples. 
+        func (function): objective function.
+        fargs (tuple): arguments to the objective function.
+        fkwargs (dict): keyword arguments for the objective function.
+        cfunc (function): cheap constraint function.
+        cargs (tuple): arguments to the constraint function.
+        ckwargs (dict): keyword arguments to the constraint fucntion.
+        settings (dict): various settings for the Bayesian optimiser. 
+        
+        Returns a list of all the observed decision vectors, the associated 
+        objective values, and relevant hypervolume.
         '''
         start_sim = time.time()
         # parameters for problem class
@@ -82,7 +127,8 @@ class Optimiser(object):
         lb = settings.get('lb', np.zeros(n_dim))
         ub = settings.get('ub', np.ones(n_dim))
         ref_vector = settings.get('ref_vector', [150.0]*n_obj)
-        obj_sense = settings.get('obj_sense', [-1]*n_obj) # default: all minimisation 
+        obj_sense = settings.get('obj_sense', [-1]*n_obj) # default: all minimisation; 
+                                                          # haven't tried maximisation, but should work.
         method_name = settings.get('method', 'HypI')
         visualise = settings.get('visualise', False)
         # parameters for EGO
@@ -194,7 +240,7 @@ class Optimiser(object):
             print("Next sampling points: ", x_new)
             
             xtr = mop.X.copy()
-            # include new sample in the trianing data.
+            # include new sample in the training data.
             xtr = np.concatenate([xtr, x_new])
             if visualise:
                 if n_obj == 2:

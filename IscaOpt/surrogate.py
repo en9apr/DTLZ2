@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ============================================================================
-Multi-objective EGO
+Surrogate modelling methods based on Gaussian processes
 ============================================================================
 
 
@@ -16,7 +16,6 @@ Multi-objective EGO
 """
 
 # imports
-
 import numpy as np
 import GPy as GP
 from pyDOE import lhs as LHS
@@ -40,8 +39,8 @@ np.set_printoptions(precision=8)
 
 class Surrogate(object):
     """
-    A surrogate implementation based GPy module. See the following webpage for
-    detailed documentation on GPy: https://github.com/SheffieldML/GPy
+    A surrogate implementation based on the GPy module. See the following 
+    webpage for detailed documentation on GPy: https://github.com/SheffieldML/GPy
     """
 
     def __init__(self, init_X, init_Y, kernel, restarts=10, verbose=False):
@@ -49,8 +48,7 @@ class Surrogate(object):
         data.
         
         parameters:
-        -----------
-        
+        -----------        
         init_X: a numpy array of initial input parameters. This should be structured 
                 such that init_X.shape = (n,), where, 
                 n = number of sample points.
@@ -89,7 +87,13 @@ class Surrogate(object):
         
         Parameters:
         -----------
-        fix_noise (float or None): Determine whether to fix the Gaussian noise.
+        fix_min (float): minimum noise variance; zero measurement variance may 
+                            lead to negative predictive variance. 
+        fix_max (float): maximum limit for hyperparameters.
+        optimiser (str): hyperparameter optimiser name. Consult GPy 
+                            documentation for avaialble optimisers.
+        n_restarts (int): number of restarts for hyper-parameter optimisation.
+        n_proc (int): number of processors to use.
         """
         print('Optimiser name: ', optimizer)
         model = GP.models.GPRegression(self.Xtr, self.Ytr, self.kernel)
@@ -137,6 +141,15 @@ class Surrogate(object):
         return model
 
     def save_data(self, filename, xtr, ytr):
+        '''
+        Save traing data in CSV files. 
+        
+        Parameters.
+        -----------
+        filename (str): destination file name.
+        xtr (np.array): training decision vectors. 
+        ytr (np.array): training objective vector.
+        '''
         f = open(filename+'_xtr.csv', 'wb')
         np.savetxt(f, xtr, delimiter=',')
         f.close()
@@ -146,14 +159,15 @@ class Surrogate(object):
 
     #@profile
     def predict(self, x):
-        """Predict the mean and the standard deviation for a given set of input
-        parameters. 
+        """
+        Predict the mean and the standard deviation for a given set of 
+        decision vectors. 
         
         Parameters:
         -----------
-        x: set of input parameters. Should be a numpy array.
+        x (np.array): decision vectors.
         
-        Returns the predicted mean and standard deviation. 
+        Returns the predicted means and the standard deviations. 
         """
         Xtest = (x-self.xbar)/self.xstd
         y, C = self.model.predict(Xtest)
@@ -179,18 +193,23 @@ class Surrogate(object):
       
     def expected_improvement(self, x, obj_sense=1, lb=None, ub=None,\
                                 cfunc=None, cargs=(), ckwargs={}):
-        """Calculate the expected improvement at a given set of input parameters,
-        based on the trained model. See the following for details. 
-        http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.139.9315&rep=rep1&type=pdf (maximisation)
-        http://www.schonlau.net/publication/_96jsm_global_optimization.pdf (minimisation)
+        """
+        Calculate the expected improvement at a given set of decision vectors,
+        based on the trained model. See the paper for details.
         
         Parameters.
         -----------
-        x: a set of input parameters. 
-        obj_sense: whether to maximise or minimise. Key for the input:
+        x (np.array): a set of decision vectors.
+        obj_sense (int): whether to maximise or minimise. Key for the input:
                      1: maximise
                     -1: minimise (default)
-        Returns the expected improvement value at x.
+        lb (np.array): lower bound for the decision space.
+        ub (np.array): upper cound for the decision space.
+        cfunc (function): cheap constraint fucntion.
+        cargs (tuple): arguments for the constraint function.
+        ckwargs (dict): keyword arguments for the constraint function.
+        
+        Returns the expected improvement values at x.
         """
         if len(x.shape) < 2:
             x = np.array(x)
@@ -232,21 +251,49 @@ class Surrogate(object):
         return ei
     
 class MultiSurrogates(object):
+    '''
+    Multiple surrogates for multi-surrogate Bayesian optimisation.
+    '''
 
-    def __init__(self, xtr, ytr, kernels, settings={}):
+    def __init__(self, xtr, ytr, kernels):
+        '''
+        This constructor creates multiple surrogates. 
+        
+        Parameters.
+        -----------
+        xtr (np.array): training decision vectors.  
+        ytr (np.array): trainign objective vectors.
+        kernels (GPy kernels): kernel functios to use with Gaussian processes.
+        '''
         self.xtr = xtr
         self.ytr = ytr
         self.kernels = kernels
         self.n_models = len(self.ytr[0])
         self.models = self.train_models()
 
-    def train_models(self, verbose=True):
+    def train_models(self):
+        '''
+        Train multiple models.
+        
+        Returns a set of models.
+        '''
         models = []
         for i in range(self.n_models):
-            models.append(Surrogate(self.xtr, np.reshape(self.ytr[:,i], (-1, 1)), self.kernels[i], verbose=verbose))
+            models.append(Surrogate(self.xtr, np.reshape(self.ytr[:,i], \
+                                    (-1, 1)), self.kernels[i], verbose=verbose))
         return models
 
     def predict(self, x):
+        '''
+        Predict the mean objective function and the standard deviation for a 
+        set of decision vectors. 
+        
+        Parameters. 
+        -----------
+        x (np.array): decision vector.
+        
+        Returns the mean predictions and the standard deviations.
+        '''
         if len(x.shape) < 2:
             x = np.array(x)
             x = x[:, np.newaxis].T
