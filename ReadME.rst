@@ -190,4 +190,4 @@ For any comments, queries or suggestions, please send an email to:
 Acknowledgement
 ---------------
 
-This project was supported by the Engineering and Physical Sciences Research Council, UK [grant number: `EP/M017915/1<http://gow.epsrc.ac.uk/NGBOViewGrant.aspx?GrantRef=EP/M017915/1>`__]
+This project was supported by the Engineering and Physical Sciences Research Council, UK [grant number: `EP/M017915/1 <http://gow.epsrc.ac.uk/NGBOViewGrant.aspx?GrantRef=EP/M017915/1>`__]
