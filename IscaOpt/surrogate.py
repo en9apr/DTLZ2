@@ -225,6 +225,7 @@ class Surrogate(object):
             if len(e_inds) == rows: # violates xtol = zero exp. imp.
                 return np.zeros((rows, 1))
         if cfunc is not None:
+            c_inds = []
             if xp.shape[0] == 1:
                 if not cfunc(xp[0], *cargs, **ckwargs):
                     return np.zeros((1,1))

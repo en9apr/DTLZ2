@@ -129,7 +129,7 @@ class Optimiser(object):
         ref_vector = settings.get('ref_vector', [150.0]*n_obj)
         obj_sense = settings.get('obj_sense', [-1]*n_obj) # default: all minimisation; 
                                                           # haven't tried maximisation, but should work.
-        method_name = settings.get('method', 'HypI')
+        method_name = settings.get('method_name', 'HypI')
         visualise = settings.get('visualise', False)
         # parameters for EGO
         n_samples = settings.get('n_samples', n_dim * 10) # default is 10 
@@ -143,6 +143,7 @@ class Optimiser(object):
         # history recording
         sim_dir = settings.get('sim_dir', '')
         run = settings.get('run', 0)
+        draw_true_1d = settings.get('draw_true_1d', False)
         # cma_options for Hansen's CMA-ES
         cma_options = settings.get('cma_options', \
                                     {'bounds':[lb, ub], \
@@ -247,9 +248,12 @@ class Optimiser(object):
                     plt.figure(1)
                     plt.cla()
                     y = mop.m_obj_eval(xtr)
-                    plt.scatter(y[:n_samples,0], y[:n_samples,1], marker="x", color="blue", alpha=0.35)
-                    plt.scatter(y[n_samples:,0], y[n_samples:,1], c=np.arange(1, y.shape[0]-n_samples+1, 1), alpha=0.35)
-                    plt.scatter(y[-1,0], y[-1,1], facecolor="none", edgecolor="black", s=80)
+                    plt.scatter(y[:n_samples,0], y[:n_samples,1], marker="x", \
+                                color="blue", alpha=0.35)
+                    plt.scatter(y[n_samples:,0], y[n_samples:,1], \
+                        c=np.arange(1, y.shape[0]-n_samples+1, 1), alpha=0.35)
+                    plt.scatter(y[-1,0], y[-1,1], facecolor="none", \
+                                edgecolor="black", s=80)
                     plt.xlabel("$f_1$")
                     plt.ylabel("$f_2$")
                     plt.draw()
@@ -258,32 +262,43 @@ class Optimiser(object):
                     plt.figure(1)
                     plt.cla()
                     y = mop.m_obj_eval(xtr)
-                    plt.scatter(xtr[:n_samples,0], xtr[:n_samples,1], marker="x", color="blue", alpha=0.35)
-                    plt.scatter(xtr[n_samples:,0], xtr[n_samples:,1], c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.35)
-                    plt.scatter(xtr[-1,0], xtr[-1,1], facecolor="none", edgecolor="black", s=80)
+                    plt.scatter(xtr[:n_samples,0], xtr[:n_samples,1], \
+                                marker="x", color="blue", alpha=0.35)
+                    plt.scatter(xtr[n_samples:,0], xtr[n_samples:,1], \
+                        c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.35)
+                    plt.scatter(xtr[-1,0], xtr[-1,1], facecolor="none", \
+                                edgecolor="black", s=80)
                     plt.xlabel('$x_0$')
-                    plt.ylable('$x_1$')
+                    plt.ylabel('$x_1$')
                     plt.draw()
                     plt.pause(0.005)
                 elif n_obj == 1 and n_dim == 1:
-                    plt.figure(1)
+                    plt.figure(1, figsize=(6,8))
+                    plt.subplot(211)
                     plt.cla()
                     y = mop.m_obj_eval(xtr)
                     tx = np.linspace(lb, ub, maxfevals)[:,None]
-                    ty = [func(sol)[0] for sol in tx]
+                    if draw_true_1d:
+                        ty = [func(sol)[0] for sol in tx]
                     pred_y, pred_s = mop.surr.predict(tx)
-                    ei = mop.surr.expected_improvement(tx, obj_sense=-1, lb=lb, ub=ub)
-                    plt.scatter(xtr[:n_samples], y[:n_samples], marker="x", color="blue", alpha=0.75)
-                    plt.scatter(xtr[n_samples:], y[n_samples:], c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.75)
-                    plt.scatter(xtr[-1], y[-1], facecolor="none", edgecolor="black", s=80)
-                    plt.plot(tx, ty, ls='dashed', color="black", alpha=0.5)
+                    ei = mop.surr.expected_improvement(tx, obj_sense=-1, lb=lb, \
+                            ub=ub, cfunc=cfunc, cargs=cargs, ckwargs=ckwargs)
+                    plt.scatter(xtr[:n_samples], y[:n_samples], marker="x", \
+                                                    color="blue", alpha=0.75)
+                    plt.scatter(xtr[n_samples:], y[n_samples:], \
+                        c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.75)
+                    plt.scatter(xtr[-1], y[-1], \
+                        facecolor="none", edgecolor="black", s=80)
+                    if draw_true_1d:
+                        plt.plot(tx, ty, ls='dashed', color="black", alpha=0.5)
                     plt.plot(tx, pred_y, color="red")
-                    plt.fill_between(np.squeeze(tx), np.squeeze(pred_y-pred_s), np.squeeze(pred_y+pred_s), color="red", alpha=0.3)
+                    plt.fill_between(np.squeeze(tx), np.squeeze(pred_y-pred_s), \
+                            np.squeeze(pred_y+pred_s), color="red", alpha=0.3)
                     plt.xlabel('x')
                     plt.ylabel('f(x)')
                     plt.draw()
                     plt.pause(0.005)
-                    plt.figure(2)
+                    plt.subplot(212)
                     plt.cla()
                     plt.plot(tx, ei)
                     plt.xlabel('x')
