@@ -256,7 +256,7 @@ class MultiSurrogates(object):
     Multiple surrogates for multi-surrogate Bayesian optimisation.
     '''
 
-    def __init__(self, xtr, ytr, kernels):
+    def __init__(self, xtr, ytr, kernels, verbose=False):
         '''
         This constructor creates multiple surrogates. 
         
@@ -270,7 +270,9 @@ class MultiSurrogates(object):
         self.ytr = ytr
         self.kernels = kernels
         self.n_models = len(self.ytr[0])
+        self.verbose = verbose
         self.models = self.train_models()
+
 
     def train_models(self):
         '''
@@ -281,7 +283,7 @@ class MultiSurrogates(object):
         models = []
         for i in range(self.n_models):
             models.append(Surrogate(self.xtr, np.reshape(self.ytr[:,i], \
-                                    (-1, 1)), self.kernels[i], verbose=verbose))
+                                    (-1, 1)), self.kernels[i], verbose=self.verbose))
         return models
 
     def predict(self, x):

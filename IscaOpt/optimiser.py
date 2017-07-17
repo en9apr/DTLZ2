@@ -139,7 +139,7 @@ class Optimiser(object):
         verbose = settings.get('verbose', True)
         svector = settings.get('svector', 15)
         maxfevals = settings.get('maxfevals', 20000*n_dim)
-        multisurrogate = settings.get('MultiSurrogate', False)
+        multisurrogate = settings.get('multisurrogate', False)
         # history recording
         sim_dir = settings.get('sim_dir', '')
         run = settings.get('run', 0)
