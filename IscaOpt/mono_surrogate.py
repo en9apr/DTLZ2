@@ -361,7 +361,8 @@ class ParEGO(MonoSurrogate):
         
         Parameters. 
         -----------
-        s (int): total number of vectors. 
+        s (int): determine total number of vectors: from (s+k-1) choose (k-1)
+                    vectors. 
         n_obj (int): number of objectvies.
         
         Returns a selected lambda vector.
