@@ -116,11 +116,7 @@ class BayesianOptBase(object):
                 self.Y = np.concatenate([self.Y, y], axis=0)
                 self.X = np.concatenate([self.X, x[inds]], axis=0)
             else:
-                print("No new evaluations were performed. This may happen when we \
-                start with a predefined set of solutions. If that is not the cause \
-                then this may be because the same solution has \
-                been selected. This is weired. If this happens, we need to see \
-                why this is happenning. ")
+                print("No new evaluations were performed. This may happen when we start with a predefined set of solutions. If that is not the cause then this may be because the same solution has been selected. This is weired. If this happens, we need to see why this is happenning.")
                 print(self.X.shape, x.shape, inds, self.Y.shape)
             return self.Y.copy()
             
