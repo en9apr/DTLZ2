@@ -311,7 +311,10 @@ class Optimiser(object):
             
             if verbose:
                 print ("=======================")
-            print ('Hypervolume: ', hpv[-1])   
+            if n_obj > 1:
+                print ('Hypervolume: ', hpv[-1])   
+            else:
+                print ('Best function value: ', hpv[-1])
             if i%1 == 0:
                 print('Saving data...')
                 try:

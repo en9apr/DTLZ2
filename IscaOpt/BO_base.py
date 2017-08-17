@@ -213,12 +213,15 @@ class BayesianOptBase(object):
         Calcualte the current hypervolume. 
         """
         y = self.Y
-        n_data = self.X.shape[0]
-        y, comp_mat = self.get_dom_matrix(y, self.ref_vector)
-        front_inds = self.get_front(y, comp_mat)
-        hpv = FH(self.ref_vector)
-        return hpv.assess_non_dom_front(y[front_inds])
-        
+        if self.n_obj > 1:
+            n_data = self.X.shape[0]
+            y, comp_mat = self.get_dom_matrix(y, self.ref_vector)
+            front_inds = self.get_front(y, comp_mat)
+            hpv = FH(self.ref_vector)
+            return hpv.assess_non_dom_front(y[front_inds])
+        else:
+            return np.min(y)
+            
     def scalarise(self, args=()):
         """
         This is the infill criterion that should be implemented in the child class. 
