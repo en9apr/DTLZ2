@@ -247,7 +247,7 @@ class Optimiser(object):
                 if n_obj == 2:
                     plt.figure(1)
                     plt.cla()
-                    y = mop.m_obj_eval(xtr)
+                    y = Y.copy() #mop.m_obj_eval(xtr)
                     plt.scatter(y[:n_samples,0], y[:n_samples,1], marker="x", \
                                 color="blue", alpha=0.35)
                     plt.scatter(y[n_samples:,0], y[n_samples:,1], \
@@ -261,12 +261,13 @@ class Optimiser(object):
                 elif n_obj == 1 and n_dim == 2:
                     plt.figure(1)
                     plt.cla()
-                    y = mop.m_obj_eval(xtr)
-                    plt.scatter(xtr[:n_samples,0], xtr[:n_samples,1], \
+                    y = Y.copy() #mop.m_obj_eval(xtr)
+                    xtmp = X.copy()
+                    plt.scatter(xtmp[:n_samples,0], xtmp[:n_samples,1], \
                                 marker="x", color="blue", alpha=0.35)
-                    plt.scatter(xtr[n_samples:,0], xtr[n_samples:,1], \
-                        c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.35)
-                    plt.scatter(xtr[-1,0], xtr[-1,1], facecolor="none", \
+                    plt.scatter(xtmp[n_samples:,0], xtmp[n_samples:,1], \
+                        c=np.arange(1, xtmp.shape[0]-n_samples+1, 1), alpha=0.35)
+                    plt.scatter(xtmp[-1,0], xtmp[-1,1], facecolor="none", \
                                 edgecolor="black", s=80)
                     plt.xlabel('$x_0$')
                     plt.ylabel('$x_1$')
@@ -276,18 +277,19 @@ class Optimiser(object):
                     plt.figure(1, figsize=(6,8))
                     plt.subplot(211)
                     plt.cla()
-                    y = mop.m_obj_eval(xtr)
+                    y = Y.copy() #mop.m_obj_eval(xtr)
+                    xtmp = X.copy()
                     tx = np.linspace(lb, ub, maxfevals)[:,None]
                     if draw_true_1d:
                         ty = [func(sol)[0] for sol in tx]
                     pred_y, pred_s = mop.surr.predict(tx)
                     ei = mop.surr.expected_improvement(tx, obj_sense=-1, lb=lb, \
                             ub=ub, cfunc=cfunc, cargs=cargs, ckwargs=ckwargs)
-                    plt.scatter(xtr[:n_samples], y[:n_samples], marker="x", \
+                    plt.scatter(xtmp[:n_samples], y[:n_samples], marker="x", \
                                                     color="blue", alpha=0.75)
-                    plt.scatter(xtr[n_samples:], y[n_samples:], \
-                        c=np.arange(1, xtr.shape[0]-n_samples+1, 1), alpha=0.75)
-                    plt.scatter(xtr[-1], y[-1], \
+                    plt.scatter(xtmp[n_samples:], y[n_samples:], \
+                        c=np.arange(1, xtmp.shape[0]-n_samples+1, 1), alpha=0.75)
+                    plt.scatter(xtmp[-1], y[-1], \
                         facecolor="none", edgecolor="black", s=80)
                     if draw_true_1d:
                         plt.plot(tx, ty, ls='dashed', color="black", alpha=0.5)
