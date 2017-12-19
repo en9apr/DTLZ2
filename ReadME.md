@@ -124,7 +124,7 @@ In the Figure above, the blue crosses show the initial samples, and the solid ci
 * Equation (3) should be as follows.
 
 \begin{align}
-\mu(\mathbf{x}) = \mathbf{\kappa}(\mathbf{x}, X)K^{-1} \mathbf{f}.
+\mu(\mathbf{x}) = \boldsymbol{\kappa}(\mathbf{x}, X)K^{-1} \mathbf{f}.
 \end{align}
 
 * Equation (5) should be as follows. 
