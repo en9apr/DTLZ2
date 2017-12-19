@@ -1,3 +1,4 @@
+
 Alternative Infill Strategies for Expensive Multi-Objective Optimisation
 ========================================================================
 
@@ -20,7 +21,7 @@ Alternative Infill Strategies for Expensive Multi-Objective Optimisation
     https://ore.exeter.ac.uk/repository/handle/10871/27157
 
     IPython notebook:
-    http://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/6fb07690329d76e114af61c609bc6e720340570b/ReadME.ipynb
+    https://nbviewer.jupyter.org/urls/bitbucket.org/arahat/gecco-2017/raw/0b5211e9e6b49d45c41a6fb709252dbdbc59f2c5/ReadME.ipynb
 
 Pre-requisits.
 --------------
@@ -90,7 +91,9 @@ arguments. We list the the most pertinent settings below.
 -  kern\_name (str): the kernel function to be used with Gaussian
    Processes. Defaults to **'Matern52'**. Please refer to GPy
    documentation for other options.
--  s\_vector (int): the number of scalarisation vectors for ParEGO.
+-  s\_vector (int): the number of scalarisation vectors for ParEGO,
+   determined as follows: from (s+k-1) choose (k-1) vectors (see
+   Knowles, 2006 for full details).
 -  maxfevals (int): the maximum number of function evaluations for
    infill criterion optimisation using CMA-ES. Defaults to
    :math:`20000d`, where :math:`d` is the number of dimensions in
@@ -138,7 +141,7 @@ An example.
 **DTLZ2** problem, starting with :math:`65` initial LHS samples and a
 budget of :math:`100`.
 
-.. code:: python3
+.. code:: ipython3
 
     from IPython.display import clear_output
     # example set up
@@ -155,7 +158,8 @@ budget of :math:`100`.
         'method_name': 'HypI',\
         'budget':100,\
         'n_samples':65,\
-        'visualise':True}
+        'visualise':True,\
+        'multisurrogate':False}
     
     # function settings
     from deap import benchmarks as BM
@@ -175,20 +179,33 @@ In the Figure above, the blue crosses show the initial samples, and the
 solid circle show the newly sampled solutions with darker colours
 showing earlier samples. The black encircled solid is the latest sample.
 
+Known issues
+------------
+
+-  The code works with numpy version 1.12.1 or earlier. This is becasue
+   CMA-ES does not seem to work with later versions of numpy.
+
 Errata
 ------
 
+-  Equation (3) should be as follows.
+
+.. raw:: latex
+
+   \begin{align}
+   \mu(\mathbf{x}) = \boldsymbol{\kappa}(\mathbf{x}, X)K^{-1} \mathbf{f}.
+   \end{align}
+
 -  Equation (5) should be as follows.
-   :math:`\alpha(\mathbf{x}, f^*) = \int_{-\infty}^{\infty}I(\mathbf{x}, f^*)P(\hat{f}|\mathbf{x},\mathcal{D})d\hat{f} = \sigma(\mathbf{x})(s\Phi(s) + \phi(s))`.
+
+.. raw:: latex
+
+   \begin{align}
+   \alpha(\mathbf{x}, f^*) = \int_{-\infty}^{\infty}I(\mathbf{x}, f^*)P(\hat{f}|\mathbf{x},\mathcal{D})d\hat{f} = \sigma(\mathbf{x})(s\Phi(s) + \phi(s)).
+   \end{align}
 
 Contact
 -------
 
 For any comments, queries or suggestions, please send an email to:
 **a.a.m.rahat@exeter.ac.uk**
-
-
-Acknowledgement
----------------
-
-This project was supported by the Engineering and Physical Sciences Research Council, UK [grant number: `EP/M017915/1 <http://gow.epsrc.ac.uk/NGBOViewGrant.aspx?GrantRef=EP/M017915/1>`__]
