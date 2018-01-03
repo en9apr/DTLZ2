@@ -110,7 +110,7 @@ clear_output()
 ```
 
 
-![png](dtlz2.png)
+![png](figures/dtlz2.png)
 
 
 In the Figure above, the blue crosses show the initial samples, and the solid circle show the newly sampled solutions with darker colours showing earlier samples. The black encircled solid is the latest sample.
