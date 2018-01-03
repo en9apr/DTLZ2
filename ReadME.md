@@ -110,14 +110,14 @@ clear_output()
 ```
 
 
-![png](figures/dtlz2.png)
+![png](dtlz2.png)
 
 
 In the Figure above, the blue crosses show the initial samples, and the solid circle show the newly sampled solutions with darker colours showing earlier samples. The black encircled solid is the latest sample.
 
 ## Known issues
 
-* The code works with numpy version 1.12.1 or earlier. This is becasue CMA-ES does not seem to work with later versions of numpy. 
+* ~~The code works with numpy version 1.12.1 or earlier. This is becasue CMA-ES does not seem to work with later versions of numpy.~~ This is now fixed.
 
 ## Errata
 

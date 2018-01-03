@@ -52,7 +52,7 @@ class Optimiser(object):
     """
         
     @staticmethod
-    def CMA_ES(toolbox, centroid=[1], std_dev=1, lb=[0], ub=[1], cma_options={}):
+    def CMA_ES(toolbox, centroid=[1], std_dev=1, cma_options={}):
         """
         A wrapper for CMA-ES (Hansen) with DEAP toolbox.
         
@@ -146,7 +146,7 @@ class Optimiser(object):
         draw_true_1d = settings.get('draw_true_1d', False)
         # cma_options for Hansen's CMA-ES
         cma_options = settings.get('cma_options', \
-                                    {'bounds':[lb, ub], \
+                                    {'bounds':[list(lb), list(ub)], \
                                      'tolfun':1e-7, \
                                      'maxfevals':maxfevals,\
                                      'verb_log': 0,\
@@ -223,7 +223,7 @@ class Optimiser(object):
             
             start = time.time()
             if n_dim > 1:
-                xopt = Optimiser.CMA_ES(toolbox, cma_centroid, cma_sigma, lb, ub, \
+                xopt = Optimiser.CMA_ES(toolbox, cma_centroid, cma_sigma, \
                                     cma_options=cma_options)
             else:
                 xopt = Optimiser.grid_search_1D(toolbox, lb, ub, n=maxfevals)
