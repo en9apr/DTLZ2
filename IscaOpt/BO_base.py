@@ -101,6 +101,8 @@ class BayesianOptBase(object):
             self.X = x.copy() # local copy
             # evaluate given objective function
             y = np.array([self.func(i, *self.args, **self.kwargs) for i in x])
+            if len(y.shape)<2:
+                y = y[:,None]
             self.Y = y.copy()
             return self.Y
         else:
@@ -113,6 +115,8 @@ class BayesianOptBase(object):
             inds = [i for i in range(shape[0]) if i not in e_inds]
             if len(inds) > 0: # evaluate solutions that have not been evaluated
                 y = np.array([self.func(i, *self.args, **self.kwargs) for i in x[inds]])
+                if len(y.shape)<2:
+                    y = y[:,None]
                 self.Y = np.concatenate([self.Y, y], axis=0)
                 self.X = np.concatenate([self.X, x[inds]], axis=0)
             else:
