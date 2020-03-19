@@ -62,7 +62,7 @@ class MonoSurrogate(BayesianOptBase):
                                 obj_sense, args, kwargs, X, Y,\
                                 ref_vector=ref_vector)
         self.kernel = kern
-        
+          
     def get_toolbox(self, xtr, skwargs, cfunc=None, \
                         cargs=(), ckwargs={}, verbose=True):
         """
@@ -174,7 +174,6 @@ class HypI(MonoSurrogate):
                 h[j] = hpv.assess_non_dom_front(y[nfr])
         print('Total time: ', (time.time() - start)/60.0)
         return np.reshape(h, (-1, 1))        
-
         
 class MSD(MonoSurrogate):
     '''

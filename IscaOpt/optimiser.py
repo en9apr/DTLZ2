@@ -28,6 +28,10 @@ except:
 import sys, time
 import matplotlib.pyplot as plt
 
+# APR added import
+from matplotlib.transforms import Bbox, TransformedBbox
+# APR added import
+
 
 def mod_evaluate(x, toolbox):
     """
@@ -138,7 +142,7 @@ class Optimiser(object):
         kern_name = settings.get('kern', 'Matern52')
         verbose = settings.get('verbose', True)
         svector = settings.get('svector', 15)
-        maxfevals = settings.get('maxfevals', 20000*n_dim)
+        maxfevals = settings.get('maxfevals', 2000*n_dim)
         multisurrogate = settings.get('multisurrogate', False)
         # history recording
         sim_dir = settings.get('sim_dir', '')
@@ -199,6 +203,18 @@ class Optimiser(object):
                                         '_b' + str(budget) + \
                                         's' + str(n_samples) \
                                         + '_r' + str(run) + '.npz'
+                                        
+        # APR added tx for plotting                         
+        n_values = 1000
+        x1_vals = np.linspace(lb[0], ub[0], n_values)
+        x2_vals = np.linspace(lb[1], ub[1], n_values)
+        tx1, tx2 = np.meshgrid(x1_vals, x2_vals)
+        tx = np.array([tx1.flatten(), tx2.flatten()]).T                                
+        # APR added tx for plotting                                 
+                                        
+                                        
+                                        
+                                        
         while True:
             print('Episode: ', i)
             mop = method(func,n_dim, n_obj, lb, ub, obj_sense=obj_sense, \
@@ -243,21 +259,60 @@ class Optimiser(object):
             xtr = mop.X.copy()
             # include new sample in the training data.
             xtr = np.concatenate([xtr, x_new])
+            
+            # APR added exact solution
+            f_1_pareto = np.linspace(0.0, 1.0, 500)
+            f_2_pareto = np.sqrt(1.0 - (f_1_pareto**2.0))
+            # APR added exact solution
+            
+
+            
+            
+            
+            
             if visualise:
                 if n_obj == 2:
-                    plt.figure(1)
-                    plt.cla()
+                    # APR added plotting
+                    
+                    # Create figures
+                    fig, (ax1, ax2) = plt.subplots(2,1,figsize=(6,10))
+
+                    ax1.cla()
                     y = Y.copy() #mop.m_obj_eval(xtr)
-                    plt.scatter(y[:n_samples,0], y[:n_samples,1], marker="x", \
-                                color="blue", alpha=0.35)
-                    plt.scatter(y[n_samples:,0], y[n_samples:,1], \
-                        c=np.arange(1, y.shape[0]-n_samples+1, 1), alpha=0.35)
-                    plt.scatter(y[-1,0], y[-1,1], facecolor="none", \
-                                edgecolor="black", s=80)
-                    plt.xlabel("$f_1$")
-                    plt.ylabel("$f_2$")
-                    plt.draw()
-                    plt.pause(0.005)
+                    xtmp = X.copy()
+                    ei =  toolbox.evaluate(tx)
+                    ei_mesh = ei.reshape(n_values, n_values)
+                    
+                    # EI
+                    cp1 = ax1.contourf(tx1, tx2, ei_mesh, cmap=plt.cm.coolwarm)
+                    cbar1 = plt.colorbar(cp1, ax=ax1)    
+                    cbar1.set_label('$EI ( x_1, x_2 )$')
+                    ax1.scatter(xtmp[:n_samples,0], xtmp[:n_samples,1], marker="x", color="black")
+                    ax1.scatter(xtmp[n_samples:,0], xtmp[n_samples:,1],  c=np.arange(1, y.shape[0]-n_samples+1, 1),  edgecolor="k", marker="o", cmap=plt.cm.binary)
+                    ax1.scatter(x_new[0,0], x_new[0,1], facecolor="none", edgecolor="black", s=120)
+                    ax1.set_ylim(0.0, 1.0)
+                    ax1.set_xlim(0.0, 1.0)
+                    ax1.set_xlabel('$x_1 \ (-)$')
+                    ax1.set_ylabel('$x_2 \ (-)$')
+                    
+                    # Pareto Front
+                    ax2.plot(f_1_pareto, f_2_pareto, 'k-')
+                    ax2.scatter(y[:n_samples,0], y[:n_samples,1], marker="x", color="black")
+                    cp2 = ax2.scatter(y[n_samples:,0], y[n_samples:,1], c=np.arange(1, y.shape[0]-n_samples+1, 1),  edgecolor="k", marker="o", cmap=plt.cm.binary)
+                    ax2.scatter(y[-1,0], y[-1,1], facecolor="none", edgecolor="red", s=120)
+                    cbar2 = plt.colorbar(cp2, format='%.0f', ax=ax2)    
+                    cbar2.set_label('$N(-)$')
+                    ax2.set_ylim(0.0, 1.6)
+                    ax2.set_xlim(0.0, 1.6)
+                    ax2.set_xticks(np.arange(0.0, 1.8, 0.2))
+                    ax2.set_xlabel('$f_1 \ (x_1, \ x_2) \ (-)$')
+                    ax2.set_ylabel('$f_2 \ (x_1, \ x_2) \ (-)$')
+                    plt.show()
+                    plt.tight_layout()
+                    fig.savefig('Pareto' + str(i-1) +  '.png')
+                    
+                    # APR added plotting
+                    
                 elif n_obj == 1 and n_dim == 2:
                     plt.figure(1)
                     plt.cla()
